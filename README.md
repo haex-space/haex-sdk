@@ -1,18 +1,18 @@
-# @haexhub/sdk
+# @haex-space/sdk
 
-[![npm version](https://badge.fury.io/js/@haexhub%2Fsdk.svg)](https://www.npmjs.com/package/@haexhub/sdk)
-[![npm downloads](https://img.shields.io/npm/dm/@haexhub/sdk.svg)](https://www.npmjs.com/package/@haexhub/sdk)
+[![npm version](https://badge.fury.io/js/@haex-space%2Fsdk.svg)](https://www.npmjs.com/package/@haex-space/sdk)
+[![npm downloads](https://img.shields.io/npm/dm/@haex-space/sdk.svg)](https://www.npmjs.com/package/@haex-space/sdk)
 
-Official SDK for building HaexHub extensions with cryptographic identity and granular permissions.
+Official SDK for building HaexVault extensions with cryptographic identity and granular permissions.
 
 ## Installation
 
 ```bash
-npm install @haexhub/sdk
+npm install @haex-space/sdk
 # or
-pnpm add @haexhub/sdk
+pnpm add @haex-space/sdk
 # or
-yarn add @haexhub/sdk
+yarn add @haex-space/sdk
 ```
 
 ## Quick Start
@@ -25,13 +25,13 @@ npm create vite@latest my-extension -- --template react-ts
 
 # Install SDK
 cd my-extension
-npm install @haexhub/sdk
+npm install @haex-space/sdk
 
 # Initialize extension structure
-npx haexhub init
+npx haex init
 ```
 
-The `haexhub init` command creates:
+The `haex init` command creates:
 - `haextension/` directory with `manifest.json`
 - Public/private keypair (`public.key`, `private.key`)
 - `haextension.config.json` for development
@@ -44,7 +44,7 @@ Import the manifest in your app's entry point:
 
 ```typescript
 import manifest from './haextension/manifest.json'; // or '../haextension/manifest.json'
-const { client } = useHaexHub({ manifest });
+const { client } = useHaexVault({ manifest });
 ```
 
 ### 3. Run Your Extension
@@ -81,7 +81,7 @@ You must register your setup hook **BEFORE** calling `setupComplete()`. The reco
 **Recommended approach for Nuxt: Register setup hook in a Pinia store:**
 
 ```typescript
-// stores/haexhub.ts
+// stores/haex.ts
 import { defineStore } from 'pinia';
 import * as schema from '~/database/schemas';
 import manifest from '../../haextension/manifest.json';
@@ -93,14 +93,14 @@ const migrationFiles = import.meta.glob('../database/migrations/*.sql', {
   eager: true,
 });
 
-export const useHaexHubStore = defineStore('haexhub', () => {
+export const useHaexVaultStore = defineStore('haex', () => {
   const nuxtApp = useNuxtApp();
-  const haexhub = nuxtApp.$haexhub;
+  const haex = nuxtApp.$haex;
 
   const orm = shallowRef(null);
 
   // Step 1: Register setup hook FIRST
-  haexhub.client.onSetup(async () => {
+  haex.client.onSetup(async () => {
     // Convert migration files to SDK format
     const migrations = Object.entries(migrationFiles).map(
       ([path, content]) => {
@@ -112,7 +112,7 @@ export const useHaexHubStore = defineStore('haexhub', () => {
     console.log(`Running ${migrations.length} migration(s)`);
 
     // Run migrations
-    await haexhub.client.runMigrationsAsync(
+    await haex.client.runMigrationsAsync(
       manifest.public_key,
       manifest.name,
       migrations
@@ -121,17 +121,17 @@ export const useHaexHubStore = defineStore('haexhub', () => {
 
   // Step 2: Initialize database and trigger setup
   const initializeAsync = async () => {
-    orm.value = haexhub.client.initializeDatabase(schema);
+    orm.value = haex.client.initializeDatabase(schema);
 
     // Step 3: Call setupComplete() to execute the hook
-    await haexhub.client.setupComplete();
+    await haex.client.setupComplete();
 
     console.log('Database ready');
   };
 
   return {
-    client: haexhub.client,
-    state: haexhub.state,
+    client: haex.client,
+    state: haex.state,
     orm,
     initializeAsync,
   };
@@ -143,7 +143,7 @@ Then in your `app.vue`:
 ```vue
 <!-- app/app.vue -->
 <template>
-  <div v-if="haexhubStore.state.isSetupComplete">
+  <div v-if="haexStore.state.isSetupComplete">
     <NuxtPage />
   </div>
   <div v-else>
@@ -152,10 +152,10 @@ Then in your `app.vue`:
 </template>
 
 <script setup lang="ts">
-const haexhubStore = useHaexHubStore();
+const haexStore = useHaexVaultStore();
 
 onMounted(async () => {
-  await haexhubStore.initializeAsync();
+  await haexStore.initializeAsync();
 });
 </script>
 ```
@@ -187,7 +187,7 @@ onMounted(async () => {
 const isSetupComplete = ref(false);
 
 onMounted(async () => {
-  const { client } = useHaexHub();
+  const { client } = useHaexVault();
 
   // Register setup function (runs once after SDK initialization)
   // This is where you create tables, run migrations, etc.
@@ -228,11 +228,11 @@ onMounted(async () => {
 ```tsx
 // src/App.tsx
 import { useState, useEffect } from 'react';
-import { useHaexHub } from '@haexhub/sdk/react';
+import { useHaexVault } from '@haex-space/sdk/react';
 import manifest from './manifest.json';
 
 function App() {
-  const { client, getTableName, isSetupComplete } = useHaexHub({ manifest });
+  const { client, getTableName, isSetupComplete } = useHaexVault({ manifest });
 
   // Register setup hook to initialize database
   useEffect(() => {
@@ -278,12 +278,12 @@ function App() {
 <!-- src/App.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { initHaexHub, haexHub, isSetupComplete } from '@haexhub/sdk/svelte';
+  import { initHaexVault, haexHub, isSetupComplete } from '@haex-space/sdk/svelte';
   import manifest from '../haextension/manifest.json';
 
   onMount(async () => {
     // Initialize SDK with manifest
-    initHaexHub({ manifest });
+    initHaexVault({ manifest });
 
     // Register setup function (runs once after SDK initialization)
     haexHub.client.onSetup(async () => {
@@ -319,10 +319,10 @@ function App() {
 
 ```typescript
 // src/main.ts
-import { createHaexHubClient } from '@haexhub/sdk';
+import { createHaexVaultClient } from '@haex-space/sdk';
 import manifest from '../haextension/manifest.json';
 
-const client = createHaexHubClient({ manifest });
+const client = createHaexVaultClient({ manifest });
 
 // Register setup function (runs once after SDK initialization)
 client.onSetup(async () => {
@@ -358,7 +358,7 @@ For complex schemas, create a separate setup file:
 
 ```typescript
 // database/createTables.ts
-export async function createTablesAsync(client: HaexHubClient) {
+export async function createTablesAsync(client: HaexVaultClient) {
   console.log('[Setup] Creating database tables...');
 
   const tables = [
@@ -391,10 +391,10 @@ client.onSetup(async () => {
 
 Complete working examples for each framework:
 
-- **Nuxt**: [github.com/haexhub/haex-demo-nuxt](https://github.com/haexhub/haex-demo-nuxt)
-- **React**: [github.com/haexhub/haex-demo-react](https://github.com/haexhub/haex-demo-react)
-- **Svelte**: [github.com/haexhub/haex-demo-svelte](https://github.com/haexhub/haex-demo-svelte)
-- **Vite**: [github.com/haexhub/haex-demo-vite](https://github.com/haexhub/haex-demo-vite)
+- **Nuxt**: [github.com/haex-space/haex-demo-nuxt](https://github.com/haex-space/haex-demo-nuxt)
+- **React**: [github.com/haex-space/haex-demo-react](https://github.com/haex-space/haex-demo-react)
+- **Svelte**: [github.com/haex-space/haex-demo-svelte](https://github.com/haex-space/haex-demo-svelte)
+- **Vite**: [github.com/haex-space/haex-demo-vite](https://github.com/haex-space/haex-demo-vite)
 
 Each demo shows:
 - ✅ **Setup Hook System** - Proper initialization with table creation
@@ -405,7 +405,7 @@ Each demo shows:
 
 ## Framework Integration
 
-The HaexHub SDK provides **framework-specific adapters** for seamless integration with popular frameworks:
+The HaexVault SDK provides **framework-specific adapters** for seamless integration with popular frameworks:
 
 ### 🎯 Quick Start by Framework
 
@@ -413,17 +413,17 @@ The HaexHub SDK provides **framework-specific adapters** for seamless integratio
 <summary><b>Vue 3</b> - Composable with reactive refs</summary>
 
 ```bash
-npm install @haexhub/sdk
+npm install @haex-space/sdk
 ```
 
 ```vue
 <script setup lang="ts">
-import { useHaexHub } from '@haexhub/sdk/vue';
+import { useHaexVault } from '@haex-space/sdk/vue';
 import manifest from './manifest.json';
 
-const { client, context, getTableName } = useHaexHub({ manifest });
+const { client, context, getTableName } = useHaexVault({ manifest });
 
-// Watch for context changes (theme/locale from HaexHub)
+// Watch for context changes (theme/locale from HaexVault)
 watch(() => context.value, (ctx) => {
   if (ctx) {
     console.log('Theme:', ctx.theme);  // 'light' or 'dark'
@@ -470,11 +470,11 @@ const users = await client.query<User>(`SELECT * FROM ${tableName}`);
 <summary><b>React</b> - Hook with automatic state updates</summary>
 
 ```bash
-npm install @haexhub/sdk
+npm install @haex-space/sdk
 ```
 
 ```tsx
-import { useHaexHub } from '@haexhub/sdk/react';
+import { useHaexVault } from '@haex-space/sdk/react';
 import { useEffect, useState } from 'react';
 import manifest from './manifest.json';
 
@@ -485,10 +485,10 @@ interface User {
 }
 
 function App() {
-  const { client, context, getTableName } = useHaexHub({ manifest });
+  const { client, context, getTableName } = useHaexVault({ manifest });
   const [users, setUsers] = useState<User[]>([]);
 
-  // React to context changes (theme/locale from HaexHub)
+  // React to context changes (theme/locale from HaexVault)
   useEffect(() => {
     if (context) {
       console.log('Theme:', context.theme);  // 'light' or 'dark'
@@ -550,23 +550,23 @@ export default App;
 <summary><b>Svelte</b> - Stores with $-syntax reactivity</summary>
 
 ```bash
-npm install @haexhub/sdk
+npm install @haex-space/sdk
 ```
 
 ```svelte
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { initHaexHub, haexHub, context } from '@haexhub/sdk/svelte';
+  import { initHaexVault, haexHub, context } from '@haex-space/sdk/svelte';
   import manifest from '../haextension/manifest.json';
 
   let users = [];
 
   onMount(() => {
     // Initialize SDK with manifest
-    initHaexHub({ manifest });
+    initHaexVault({ manifest });
   });
 
-  // React to context changes (theme/locale from HaexHub)
+  // React to context changes (theme/locale from HaexVault)
   $: if ($context) {
     console.log('Theme:', $context.theme);  // 'light' or 'dark'
     console.log('Locale:', $context.locale); // 'en', 'de', etc.
@@ -620,16 +620,16 @@ npm install @haexhub/sdk
 <summary><b>Vanilla JS / Other Frameworks</b> - Core SDK</summary>
 
 ```bash
-npm install @haexhub/sdk
+npm install @haex-space/sdk
 ```
 
 ```typescript
-import { createHaexHubClient } from '@haexhub/sdk';
+import { createHaexVaultClient } from '@haex-space/sdk';
 import manifest from '../haextension/manifest.json';
 
-const client = createHaexHubClient({ manifest });
+const client = createHaexVaultClient({ manifest });
 
-// Subscribe to context changes (theme/locale from HaexHub)
+// Subscribe to context changes (theme/locale from HaexVault)
 client.subscribe(() => {
   const context = client.context;
   if (context) {
@@ -668,10 +668,10 @@ console.log(users);
 
 | Framework | Import Path | Features |
 |-----------|-------------|----------|
-| **Vue 3** | `@haexhub/sdk/vue` | Composable with `ref` reactivity |
-| **React** | `@haexhub/sdk/react` | Hook with state management |
-| **Svelte** | `@haexhub/sdk/svelte` | Stores with `$` syntax |
-| **Core** | `@haexhub/sdk` | Framework-agnostic client |
+| **Vue 3** | `@haex-space/sdk/vue` | Composable with `ref` reactivity |
+| **React** | `@haex-space/sdk/react` | Hook with state management |
+| **Svelte** | `@haex-space/sdk/svelte` | Stores with `$` syntax |
+| **Core** | `@haex-space/sdk` | Framework-agnostic client |
 
 ## Built-in Polyfills
 
@@ -689,7 +689,7 @@ The SDK automatically includes polyfills for browser APIs that don't work in cus
 When you import the SDK:
 
 ```typescript
-import { createHaexHubClient } from '@haexhub/sdk';
+import { createHaexVaultClient } from '@haex-space/sdk';
 // Polyfills are automatically active!
 ```
 
@@ -713,7 +713,7 @@ You can build your extension using **any framework and any libraries** without w
 
 ### 1. Application Context
 
-HaexHub provides an **Application Context** that extensions can subscribe to for reactive updates:
+HaexVault provides an **Application Context** that extensions can subscribe to for reactive updates:
 
 ```typescript
 interface ApplicationContext {
@@ -730,10 +730,10 @@ interface ApplicationContext {
 ```vue
 <script setup lang="ts">
 import { watch } from 'vue';
-import { useHaexHub } from '@haexhub/sdk/vue';
+import { useHaexVault } from '@haex-space/sdk/vue';
 import manifest from './manifest.json';
 
-const { context } = useHaexHub({ manifest });
+const { context } = useHaexVault({ manifest });
 
 watch(() => context.value, (ctx) => {
   if (ctx) {
@@ -753,11 +753,11 @@ watch(() => context.value, (ctx) => {
 
 ```tsx
 import { useEffect } from 'react';
-import { useHaexHub } from '@haexhub/sdk/react';
+import { useHaexVault } from '@haex-space/sdk/react';
 import manifest from './manifest.json';
 
 function App() {
-  const { context } = useHaexHub({ manifest });
+  const { context } = useHaexVault({ manifest });
 
   useEffect(() => {
     if (context) {
@@ -779,10 +779,10 @@ function App() {
 
 ```svelte
 <script lang="ts">
-  import { initHaexHub, context } from '@haexhub/sdk/svelte';
+  import { initHaexVault, context } from '@haex-space/sdk/svelte';
   import manifest from '../haextension/manifest.json';
 
-  initHaexHub({ manifest });
+  initHaexVault({ manifest });
 
   // Reactive statement - runs whenever $context changes
   $: if ($context) {
@@ -800,10 +800,10 @@ function App() {
 <summary><b>Vanilla JS / Vite</b></summary>
 
 ```typescript
-import { createHaexHubClient } from '@haexhub/sdk';
+import { createHaexVaultClient } from '@haex-space/sdk';
 import manifest from '../haextension/manifest.json';
 
-const client = createHaexHubClient({ manifest });
+const client = createHaexVaultClient({ manifest });
 
 // Subscribe to context changes
 client.subscribe(() => {
@@ -857,7 +857,7 @@ const tableName = client.getTableName("users");
 
 ### 3. Permission System
 
-HaexHub uses a **zero-trust permission model** with automatic isolation:
+HaexVault uses a **zero-trust permission model** with automatic isolation:
 
 #### 🔓 Own Tables - Always Allowed
 
@@ -927,16 +927,16 @@ const creds = await client.database.query(`SELECT * FROM ${depTable}`);
 ### Vue 3 Adapter
 
 ```typescript
-import { useHaexHub } from '@haexhub/sdk/vue';
+import { useHaexVault } from '@haex-space/sdk/vue';
 
 const {
-  client,          // Raw HaexHubClient instance
+  client,          // Raw HaexVaultClient instance
   extensionInfo,   // Readonly<Ref<ExtensionInfo | null>>
   context,         // Readonly<Ref<ApplicationContext | null>>
   db,              // DatabaseAPI
   storage,         // StorageAPI
   getTableName     // (tableName: string) => string
-} = useHaexHub({ debug: true });
+} = useHaexVault({ debug: true });
 
 // Use in templates or computed
 watch(() => extensionInfo.value, (info) => {
@@ -947,17 +947,17 @@ watch(() => extensionInfo.value, (info) => {
 ### React Adapter
 
 ```typescript
-import { useHaexHub } from '@haexhub/sdk/react';
+import { useHaexVault } from '@haex-space/sdk/react';
 
 function MyComponent() {
   const {
-    client,          // HaexHubClient instance
+    client,          // HaexVaultClient instance
     extensionInfo,   // ExtensionInfo | null
     context,         // ApplicationContext | null
     db,              // DatabaseAPI
     storage,         // StorageAPI
     getTableName     // (tableName: string) => string
-  } = useHaexHub({ debug: true });
+  } = useHaexVault({ debug: true });
 
   // State automatically updates on SDK changes
   return <div>{extensionInfo?.name}</div>;
@@ -968,11 +968,11 @@ function MyComponent() {
 
 ```typescript
 // Initialize once in +layout.svelte
-import { initHaexHub } from '@haexhub/sdk/svelte';
-initHaexHub({ debug: true });
+import { initHaexVault } from '@haex-space/sdk/svelte';
+initHaexVault({ debug: true });
 
 // Use stores anywhere
-import { extensionInfo, context, haexHub } from '@haexhub/sdk/svelte';
+import { extensionInfo, context, haexHub } from '@haex-space/sdk/svelte';
 
 // In templates with $ syntax
 <h1>{$extensionInfo?.name}</h1>
@@ -987,9 +987,9 @@ await haexHub.database.query(`SELECT * FROM ${tableName}`);
 #### Client Initialization
 
 ```typescript
-import { createHaexHubClient } from '@haexhub/sdk';
+import { createHaexVaultClient } from '@haex-space/sdk';
 
-const client = createHaexHubClient({
+const client = createHaexVaultClient({
   debug: true,      // Optional: Enable debug logging
   timeout: 30000    // Optional: Request timeout in ms
 });
@@ -1255,9 +1255,9 @@ Your extension needs a `manifest.json` file:
 ### Extension A: Password Manager
 
 ```typescript
-import { useHaexHub } from '@haexhub/sdk/vue';
+import { useHaexVault } from '@haex-space/sdk/vue';
 
-const { db, getTableName } = useHaexHub();
+const { db, getTableName } = useHaexVault();
 
 // Create credentials table - no permissions needed for own tables!
 const credentialsTable = getTableName('credentials');
@@ -1306,10 +1306,10 @@ await db.insert(credentialsTable, {
 **Code:**
 
 ```typescript
-import { useHaexHub } from '@haexhub/sdk/react';
+import { useHaexVault } from '@haex-space/sdk/react';
 
 function EmailClient() {
-  const { db, client } = useHaexHub();
+  const { db, client } = useHaexVault();
 
   async function loadCredentials() {
     // Access Password Manager's credentials table
@@ -1337,21 +1337,21 @@ function EmailClient() {
 
 **User Experience:**
 1. User installs Email Client extension
-2. HaexHub shows permission request: "Email Client wants to **read** the **credentials** table from Password Manager"
+2. HaexVault shows permission request: "Email Client wants to **read** the **credentials** table from Password Manager"
 3. User sees the reason: "Retrieve Gmail login credentials"
 4. User approves or denies
 5. Permission can be revoked anytime in settings
 
 ## Extension Signing & Packaging
 
-HaexHub Extensions must be cryptographically signed to ensure authenticity and prevent tampering. The SDK provides tools to generate keypairs, sign, and package your extensions.
+HaexVault Extensions must be cryptographically signed to ensure authenticity and prevent tampering. The SDK provides tools to generate keypairs, sign, and package your extensions.
 
 ### 1. Generate a Keypair (One-time Setup)
 
 Before publishing your extension, generate a keypair:
 
 ```bash
-npx haexhub keygen
+npx haex keygen
 ```
 
 This creates two files:
@@ -1377,11 +1377,11 @@ Add scripts to your `package.json`:
 {
   "scripts": {
     "build": "nuxt generate",
-    "package": "haexhub sign dist -k private.key",
+    "package": "haex sign dist -k private.key",
     "build:release": "npm run build && npm run package"
   },
   "devDependencies": {
-    "@haexhub/sdk": "^0.1.0"
+    "@haex-space/sdk": "^0.1.0"
   }
 }
 ```
@@ -1397,7 +1397,7 @@ This creates `your-extension-1.0.0.haextension` - a signed ZIP file ready for di
 **OR** build your extension and run:
 
 ```bash
-npx haexhub sign dist -k private.key
+npx haex sign dist -k private.key
 ```
 
 ### 4. What Gets Signed?
@@ -1413,7 +1413,7 @@ The signing process:
 
 When users install your extension:
 
-1. HaexHub extracts the `.haextension` file
+1. HaexVault extracts the `.haextension` file
 2. Verifies the signature using the `public_key`
 3. Computes the hash and checks it matches
 4. Rejects installation if verification fails
@@ -1476,13 +1476,13 @@ import type {
   ApplicationContext,
   DatabaseQueryResult,
   PermissionStatus
-} from '@haexhub/sdk';
+} from '@haex-space/sdk';
 ```
 
 ## Error Handling
 
 ```typescript
-import { ErrorCode } from '@haexhub/sdk';
+import { ErrorCode } from '@haex-space/sdk';
 
 try {
   await client.database.query(`SELECT * FROM ${someTable}`);
@@ -1546,6 +1546,6 @@ ISC
 
 ## Support
 
-- Documentation: https://github.com/haexhub/sdk
-- GitHub: https://github.com/haexhub/sdk
-- Issues: https://github.com/haexhub/sdk/issues
+- Documentation: https://github.com/haex-space/sdk
+- GitHub: https://github.com/haex-space/sdk
+- Issues: https://github.com/haex-space/sdk/issues
