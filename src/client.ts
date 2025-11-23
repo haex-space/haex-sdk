@@ -662,7 +662,7 @@ export class HaexHubClient {
       // Load extension info from manifest (if provided in config)
       if (this.config.manifest) {
         this._extensionInfo = {
-          publicKey: this.config.manifest.public_key,
+          publicKey: this.config.manifest.publicKey,
           name: this.config.manifest.name,
           version: this.config.manifest.version,
           displayName: this.config.manifest.name,
