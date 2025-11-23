@@ -216,17 +216,24 @@ export class DatabaseAPI {
           try {
             await this.execute(statement);
           } catch (error: unknown) {
-            // Ignore "table already exists" errors for backwards compatibility
-            // This handles the case where tables were created manually before migrations
-            if (
-              error instanceof Error &&
-              !error.message?.includes("already exists")
-            ) {
+            // Only ignore genuine "table already exists" errors
+            // All other errors should be thrown
+            if (error instanceof Error) {
+              const isTableExists = error.message?.includes("already exists") ||
+                                   error.message?.includes("table") && error.message?.includes("exists");
+
+              if (isTableExists) {
+                console.log(
+                  `[SDK] ⚠ Table already exists, skipping statement`
+                );
+              } else {
+                // This is NOT a "table already exists" error - throw it!
+                console.error(`[SDK] ❌ Migration error:`, error);
+                throw error;
+              }
+            } else {
               throw error;
             }
-            console.log(
-              `[SDK] ⚠ Ignoring "already exists" error for backwards compatibility`
-            );
           }
         }
 
