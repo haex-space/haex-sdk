@@ -15,6 +15,7 @@ export const HAEXTENSION_METHODS = {
     query: 'haextension:database:query',
     execute: 'haextension:database:execute',
     transaction: 'haextension:database:transaction',
+    registerMigrations: 'haextension:database:register-migrations',
   },
 
   filesystem: {

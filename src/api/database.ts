@@ -1,5 +1,5 @@
 import type { HaexHubClient } from "../client";
-import type { DatabaseQueryResult, DatabaseTableInfo } from "../types";
+import type { DatabaseQueryResult } from "../types";
 import { HAEXTENSION_METHODS } from "../methods";
 
 export class DatabaseAPI {
@@ -51,49 +51,22 @@ export class DatabaseAPI {
     await this.execute(query);
   }
 
-  async tableExists(tableName: string): Promise<boolean> {
-    const result = await this.queryOne<{ count: number }>(
-      `SELECT COUNT(*) as count FROM sqlite_master WHERE type='table' AND name=?`,
-      [tableName]
-    );
-    return result ? result.count > 0 : false;
-  }
-
-  async getTableInfo(tableName: string): Promise<DatabaseTableInfo | null> {
-    interface PragmaResult {
-      cid: number;
-      name: string;
-      type: string;
-      notnull: number;
-      dflt_value: unknown;
-      pk: number;
-    }
-
-    const columns = await this.query<PragmaResult>(
-      `PRAGMA table_info(${tableName})`
-    );
-
-    if (columns.length === 0) {
-      return null;
-    }
-
-    return {
-      name: tableName,
-      columns: columns.map((col) => ({
-        name: col.name,
-        type: col.type,
-        notNull: col.notnull === 1,
-        defaultValue: col.dflt_value,
-        primaryKey: col.pk === 1,
-      })),
-    };
-  }
-
-  async listTables(): Promise<string[]> {
-    const result = await this.query<{ name: string }>(
-      `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name`
-    );
-    return result.map((row) => row.name);
+  /**
+   * Registers extension migrations with HaexVault for CRDT synchronization
+   * HaexVault will validate and execute these migrations, ensuring only
+   * tables with the correct prefix are manipulated
+   * @param extensionVersion - The version of the extension
+   * @param migrations - Array of migration objects with name and SQL content
+   * @returns Promise that resolves when migrations are registered
+   */
+  async registerMigrationsAsync(
+    extensionVersion: string,
+    migrations: Array<{ name: string; sql: string }>
+  ): Promise<void> {
+    await this.client.request(HAEXTENSION_METHODS.database.registerMigrations, {
+      extensionVersion,
+      migrations,
+    });
   }
 
   async insert(
@@ -154,102 +127,4 @@ export class DatabaseAPI {
     return result?.count ?? 0;
   }
 
-  /**
-   * Runs database migrations for an extension
-   * @param extensionPublicKey - The public key of the extension
-   * @param extensionName - The name of the extension
-   * @param migrations - Array of migration objects with name and SQL content
-   * @returns Promise that resolves when all migrations are applied
-   */
-  async runMigrationsAsync(
-    extensionPublicKey: string,
-    extensionName: string,
-    migrations: Array<{ name: string; sql: string }>
-  ): Promise<void> {
-    const tablePrefix = `${extensionPublicKey}__${extensionName}`;
-    const migrationsTableName = `${tablePrefix}__migrations`;
-
-    console.log(`[SDK] Running migrations for extension ${extensionName}`);
-
-    try {
-      // Create migrations tracking table if it doesn't exist
-      await this.execute(`
-        CREATE TABLE IF NOT EXISTS "${migrationsTableName}" (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL UNIQUE,
-          applied_at INTEGER NOT NULL
-        )
-      `);
-
-      // Get already applied migrations
-      const appliedMigrations = await this.query<{ name: string }>(
-        `SELECT name FROM "${migrationsTableName}"`
-      );
-      // Handle both object format {name: "..."} and array format ["..."]
-      const appliedNames = new Set(
-        appliedMigrations.map((m) => {
-          if (Array.isArray(m)) {
-            return m[0] as string;
-          }
-          return m.name;
-        })
-      );
-
-      // Apply new migrations
-      for (const migration of migrations) {
-        if (appliedNames.has(migration.name)) {
-          console.log(
-            `[SDK] ↷ Migration ${migration.name} already applied, skipping`
-          );
-          continue;
-        }
-
-        console.log(`[SDK] → Applying migration: ${migration.name}`);
-
-        // Split SQL by statement separator and execute each statement
-        const statements = migration.sql
-          .split("--> statement-breakpoint")
-          .map((s) => s.trim())
-          .filter((s) => s.length > 0);
-
-        for (const statement of statements) {
-          try {
-            await this.execute(statement);
-          } catch (error: unknown) {
-            // Only ignore genuine "table already exists" errors
-            // All other errors should be thrown
-            if (error instanceof Error) {
-              const isTableExists = error.message?.includes("already exists") ||
-                                   error.message?.includes("table") && error.message?.includes("exists");
-
-              if (isTableExists) {
-                console.log(
-                  `[SDK] ⚠ Table already exists, skipping statement`
-                );
-              } else {
-                // This is NOT a "table already exists" error - throw it!
-                console.error(`[SDK] ❌ Migration error:`, error);
-                throw error;
-              }
-            } else {
-              throw error;
-            }
-          }
-        }
-
-        // Record migration as applied
-        await this.execute(
-          `INSERT INTO "${migrationsTableName}" (name, applied_at) VALUES (?, ?)`,
-          [migration.name, Date.now()]
-        );
-
-        console.log(`[SDK] ✓ Migration ${migration.name} applied successfully`);
-      }
-
-      console.log(`[SDK] All migrations completed successfully`);
-    } catch (error) {
-      console.error(`[SDK] Error running migrations:`, error);
-      throw error;
-    }
-  }
 }

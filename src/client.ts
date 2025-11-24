@@ -363,22 +363,17 @@ export class HaexHubClient {
   }
 
   /**
-   * Runs database migrations for an extension
-   * @param extensionPublicKey - The public key of the extension
-   * @param extensionName - The name of the extension
+   * Registers extension migrations with HaexVault for CRDT synchronization
+   * HaexVault will validate and execute these migrations
+   * @param extensionVersion - The version of the extension
    * @param migrations - Array of migration objects with name and SQL content
-   * @returns Promise that resolves when all migrations are applied
+   * @returns Promise that resolves when migrations are registered
    */
-  public async runMigrationsAsync(
-    extensionPublicKey: string,
-    extensionName: string,
+  public async registerMigrationsAsync(
+    extensionVersion: string,
     migrations: Array<{ name: string; sql: string }>
   ): Promise<void> {
-    return this.database.runMigrationsAsync(
-      extensionPublicKey,
-      extensionName,
-      migrations
-    );
+    return this.database.registerMigrationsAsync(extensionVersion, migrations);
   }
 
   public async requestDatabasePermission(
