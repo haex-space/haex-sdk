@@ -4,11 +4,11 @@
   "description": "SDK for building Haex Vault extensions",
   "repository": {
     "type": "git",
-    "url": "https://github.com/haex-space/haex-sdk.git"
+    "url": "https://github.com/haex-space/vault-sdk.git"
   },
-  "homepage": "https://github.com/haex-space/haex-sdk#readme",
+  "homepage": "https://github.com/haex-space/vault-sdk#readme",
   "bugs": {
-    "url": "https://github.com/haex-space/haex-sdk/issues"
+    "url": "https://github.com/haex-space/vault-sdk/issues"
   },
   "keywords": [
     "tauri",
