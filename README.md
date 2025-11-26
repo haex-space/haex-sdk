@@ -1,18 +1,18 @@
-# @haex-space/sdk
+# @haex-space/vault-sdk
 
-[![npm version](https://badge.fury.io/js/@haex-space%2Fsdk.svg)](https://www.npmjs.com/package/@haex-space/sdk)
-[![npm downloads](https://img.shields.io/npm/dm/@haex-space/sdk.svg)](https://www.npmjs.com/package/@haex-space/sdk)
+[![npm version](https://badge.fury.io/js/@haex-space%2Fvault-sdk.svg)](https://www.npmjs.com/package/@haex-space/vault-sdk)
+[![npm downloads](https://img.shields.io/npm/dm/@haex-space/vault-sdk.svg)](https://www.npmjs.com/package/@haex-space/vault-sdk)
 
 Official SDK for building HaexVault extensions with cryptographic identity and granular permissions.
 
 ## Installation
 
 ```bash
-npm install @haex-space/sdk
+npm install @haex-space/vault-sdk
 # or
-pnpm add @haex-space/sdk
+pnpm add @haex-space/vault-sdk
 # or
-yarn add @haex-space/sdk
+yarn add @haex-space/vault-sdk
 ```
 
 ## Quick Start
@@ -25,7 +25,7 @@ npm create vite@latest my-extension -- --template react-ts
 
 # Install SDK
 cd my-extension
-npm install @haex-space/sdk
+npm install @haex-space/vault-sdk
 
 # Initialize extension structure
 npx haex init
@@ -228,7 +228,7 @@ onMounted(async () => {
 ```tsx
 // src/App.tsx
 import { useState, useEffect } from 'react';
-import { useHaexVault } from '@haex-space/sdk/react';
+import { useHaexVault } from '@haex-space/vault-sdk/react';
 import manifest from './manifest.json';
 
 function App() {
@@ -278,7 +278,7 @@ function App() {
 <!-- src/App.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { initHaexVault, haexHub, isSetupComplete } from '@haex-space/sdk/svelte';
+  import { initHaexVault, haexHub, isSetupComplete } from '@haex-space/vault-sdk/svelte';
   import manifest from '../haextension/manifest.json';
 
   onMount(async () => {
@@ -319,7 +319,7 @@ function App() {
 
 ```typescript
 // src/main.ts
-import { createHaexVaultClient } from '@haex-space/sdk';
+import { createHaexVaultClient } from '@haex-space/vault-sdk';
 import manifest from '../haextension/manifest.json';
 
 const client = createHaexVaultClient({ manifest });
@@ -413,12 +413,12 @@ The HaexVault SDK provides **framework-specific adapters** for seamless integrat
 <summary><b>Vue 3</b> - Composable with reactive refs</summary>
 
 ```bash
-npm install @haex-space/sdk
+npm install @haex-space/vault-sdk
 ```
 
 ```vue
 <script setup lang="ts">
-import { useHaexVault } from '@haex-space/sdk/vue';
+import { useHaexVault } from '@haex-space/vault-sdk/vue';
 import manifest from './manifest.json';
 
 const { client, context, getTableName } = useHaexVault({ manifest });
@@ -470,11 +470,11 @@ const users = await client.query<User>(`SELECT * FROM ${tableName}`);
 <summary><b>React</b> - Hook with automatic state updates</summary>
 
 ```bash
-npm install @haex-space/sdk
+npm install @haex-space/vault-sdk
 ```
 
 ```tsx
-import { useHaexVault } from '@haex-space/sdk/react';
+import { useHaexVault } from '@haex-space/vault-sdk/react';
 import { useEffect, useState } from 'react';
 import manifest from './manifest.json';
 
@@ -550,13 +550,13 @@ export default App;
 <summary><b>Svelte</b> - Stores with $-syntax reactivity</summary>
 
 ```bash
-npm install @haex-space/sdk
+npm install @haex-space/vault-sdk
 ```
 
 ```svelte
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { initHaexVault, haexHub, context } from '@haex-space/sdk/svelte';
+  import { initHaexVault, haexHub, context } from '@haex-space/vault-sdk/svelte';
   import manifest from '../haextension/manifest.json';
 
   let users = [];
@@ -620,11 +620,11 @@ npm install @haex-space/sdk
 <summary><b>Vanilla JS / Other Frameworks</b> - Core SDK</summary>
 
 ```bash
-npm install @haex-space/sdk
+npm install @haex-space/vault-sdk
 ```
 
 ```typescript
-import { createHaexVaultClient } from '@haex-space/sdk';
+import { createHaexVaultClient } from '@haex-space/vault-sdk';
 import manifest from '../haextension/manifest.json';
 
 const client = createHaexVaultClient({ manifest });
@@ -668,10 +668,10 @@ console.log(users);
 
 | Framework | Import Path | Features |
 |-----------|-------------|----------|
-| **Vue 3** | `@haex-space/sdk/vue` | Composable with `ref` reactivity |
-| **React** | `@haex-space/sdk/react` | Hook with state management |
-| **Svelte** | `@haex-space/sdk/svelte` | Stores with `$` syntax |
-| **Core** | `@haex-space/sdk` | Framework-agnostic client |
+| **Vue 3** | `@haex-space/vault-sdk/vue` | Composable with `ref` reactivity |
+| **React** | `@haex-space/vault-sdk/react` | Hook with state management |
+| **Svelte** | `@haex-space/vault-sdk/svelte` | Stores with `$` syntax |
+| **Core** | `@haex-space/vault-sdk` | Framework-agnostic client |
 
 ## Built-in Polyfills
 
@@ -689,7 +689,7 @@ The SDK automatically includes polyfills for browser APIs that don't work in cus
 When you import the SDK:
 
 ```typescript
-import { createHaexVaultClient } from '@haex-space/sdk';
+import { createHaexVaultClient } from '@haex-space/vault-sdk';
 // Polyfills are automatically active!
 ```
 
@@ -730,7 +730,7 @@ interface ApplicationContext {
 ```vue
 <script setup lang="ts">
 import { watch } from 'vue';
-import { useHaexVault } from '@haex-space/sdk/vue';
+import { useHaexVault } from '@haex-space/vault-sdk/vue';
 import manifest from './manifest.json';
 
 const { context } = useHaexVault({ manifest });
@@ -753,7 +753,7 @@ watch(() => context.value, (ctx) => {
 
 ```tsx
 import { useEffect } from 'react';
-import { useHaexVault } from '@haex-space/sdk/react';
+import { useHaexVault } from '@haex-space/vault-sdk/react';
 import manifest from './manifest.json';
 
 function App() {
@@ -779,7 +779,7 @@ function App() {
 
 ```svelte
 <script lang="ts">
-  import { initHaexVault, context } from '@haex-space/sdk/svelte';
+  import { initHaexVault, context } from '@haex-space/vault-sdk/svelte';
   import manifest from '../haextension/manifest.json';
 
   initHaexVault({ manifest });
@@ -800,7 +800,7 @@ function App() {
 <summary><b>Vanilla JS / Vite</b></summary>
 
 ```typescript
-import { createHaexVaultClient } from '@haex-space/sdk';
+import { createHaexVaultClient } from '@haex-space/vault-sdk';
 import manifest from '../haextension/manifest.json';
 
 const client = createHaexVaultClient({ manifest });
@@ -927,7 +927,7 @@ const creds = await client.database.query(`SELECT * FROM ${depTable}`);
 ### Vue 3 Adapter
 
 ```typescript
-import { useHaexVault } from '@haex-space/sdk/vue';
+import { useHaexVault } from '@haex-space/vault-sdk/vue';
 
 const {
   client,          // Raw HaexVaultClient instance
@@ -947,7 +947,7 @@ watch(() => extensionInfo.value, (info) => {
 ### React Adapter
 
 ```typescript
-import { useHaexVault } from '@haex-space/sdk/react';
+import { useHaexVault } from '@haex-space/vault-sdk/react';
 
 function MyComponent() {
   const {
@@ -968,11 +968,11 @@ function MyComponent() {
 
 ```typescript
 // Initialize once in +layout.svelte
-import { initHaexVault } from '@haex-space/sdk/svelte';
+import { initHaexVault } from '@haex-space/vault-sdk/svelte';
 initHaexVault({ debug: true });
 
 // Use stores anywhere
-import { extensionInfo, context, haexHub } from '@haex-space/sdk/svelte';
+import { extensionInfo, context, haexHub } from '@haex-space/vault-sdk/svelte';
 
 // In templates with $ syntax
 <h1>{$extensionInfo?.name}</h1>
@@ -987,7 +987,7 @@ await haexHub.database.query(`SELECT * FROM ${tableName}`);
 #### Client Initialization
 
 ```typescript
-import { createHaexVaultClient } from '@haex-space/sdk';
+import { createHaexVaultClient } from '@haex-space/vault-sdk';
 
 const client = createHaexVaultClient({
   debug: true,      // Optional: Enable debug logging
@@ -1255,7 +1255,7 @@ Your extension needs a `manifest.json` file:
 ### Extension A: Password Manager
 
 ```typescript
-import { useHaexVault } from '@haex-space/sdk/vue';
+import { useHaexVault } from '@haex-space/vault-sdk/vue';
 
 const { db, getTableName } = useHaexVault();
 
@@ -1306,7 +1306,7 @@ await db.insert(credentialsTable, {
 **Code:**
 
 ```typescript
-import { useHaexVault } from '@haex-space/sdk/react';
+import { useHaexVault } from '@haex-space/vault-sdk/react';
 
 function EmailClient() {
   const { db, client } = useHaexVault();
@@ -1381,7 +1381,7 @@ Add scripts to your `package.json`:
     "build:release": "npm run build && npm run package"
   },
   "devDependencies": {
-    "@haex-space/sdk": "^0.1.0"
+    "@haex-space/vault-sdk": "^1.0.0"
   }
 }
 ```
@@ -1476,13 +1476,13 @@ import type {
   ApplicationContext,
   DatabaseQueryResult,
   PermissionStatus
-} from '@haex-space/sdk';
+} from '@haex-space/vault-sdk';
 ```
 
 ## Error Handling
 
 ```typescript
-import { ErrorCode } from '@haex-space/sdk';
+import { ErrorCode } from '@haex-space/vault-sdk';
 
 try {
   await client.database.query(`SELECT * FROM ${someTable}`);
@@ -1546,6 +1546,6 @@ ISC
 
 ## Support
 
-- Documentation: https://github.com/haex-space/sdk
-- GitHub: https://github.com/haex-space/sdk
-- Issues: https://github.com/haex-space/sdk/issues
+- Documentation: https://github.com/haex-space/vault-sdk
+- GitHub: https://github.com/haex-space/vault-sdk
+- Issues: https://github.com/haex-space/vault-sdk/issues
