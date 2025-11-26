@@ -20,12 +20,12 @@
 
 import { writable, readonly as svelteReadonly } from 'svelte/store';
 import type { Readable } from 'svelte/store';
-import { createHaexHubClient } from './index';
-import { HaexHubClient } from './client';
+import { createHaexVaultClient } from './index';
+import { HaexVaultClient } from './client';
 import type { ExtensionInfo, ApplicationContext, HaexHubConfig } from './types';
 
 // Shared SDK client instance - initialized once at module level
-let clientInstance: HaexHubClient | null = null;
+let clientInstance: HaexVaultClient | null = null;
 
 // Writable stores
 const extensionInfoStore = writable<ExtensionInfo | null>(null);
@@ -41,7 +41,7 @@ const isSetupCompleteStore = writable<boolean>(false);
  */
 export function initHaexHub(config: HaexHubConfig = {}) {
   if (!clientInstance) {
-    clientInstance = createHaexHubClient(config);
+    clientInstance = createHaexVaultClient(config);
 
     // Set initial values
     extensionInfoStore.set(clientInstance.extensionInfo);
@@ -90,7 +90,7 @@ export const isSetupComplete: Readable<boolean> = svelteReadonly(isSetupComplete
  * Access db, storage, and other SDK methods
  */
 export const haexHub = {
-  get client(): HaexHubClient | null {
+  get client(): HaexVaultClient | null {
     return clientInstance;
   },
   get db() {
@@ -111,6 +111,6 @@ export const haexHub = {
  * Get the raw HaexHub client instance (non-reactive)
  * Useful for direct API calls without Svelte store overhead
  */
-export function getHaexHubClient(): HaexHubClient | null {
+export function getHaexVaultClient(): HaexVaultClient | null {
   return clientInstance;
 }

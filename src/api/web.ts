@@ -1,9 +1,9 @@
-import type { HaexHubClient } from "../client";
+import type { HaexVaultClient } from "../client";
 import type { WebRequestOptions, WebResponse } from "../types";
 import { HAEXTENSION_METHODS } from "../methods";
 
 export class WebAPI {
-  constructor(private client: HaexHubClient) {}
+  constructor(private client: HaexVaultClient) {}
 
   /**
    * Performs a web request through the HaexHub host application

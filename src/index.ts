@@ -2,7 +2,7 @@
 // This ensures localStorage, cookies, and history work in custom protocols
 import './polyfills';
 
-export { HaexHubClient } from "./client";
+export { HaexVaultClient } from "./client";
 export { DatabaseAPI } from "./api/database";
 export { FilesystemAPI } from "./api/filesystem";
 export { WebAPI } from "./api/web";
@@ -59,11 +59,11 @@ export {
 // Export config type only (utilities are Node.js-only and exported separately)
 export type { HaextensionConfig } from './config';
 
-import { HaexHubClient } from "./client";
+import { HaexVaultClient } from "./client";
 import type { HaexHubConfig } from "./types";
 
-export function createHaexHubClient(
+export function createHaexVaultClient(
   config: HaexHubConfig = {}
 ) {
-  return new HaexHubClient(config);
+  return new HaexVaultClient(config);
 }

@@ -1,8 +1,8 @@
-import type { HaexHubClient } from "../client";
+import type { HaexVaultClient } from "../client";
 import type { PermissionResponse } from "../types";
 
 export class PermissionsAPI {
-  constructor(private client: HaexHubClient) {}
+  constructor(private client: HaexVaultClient) {}
 
   /**
    * Checks if the extension has permission for a database operation

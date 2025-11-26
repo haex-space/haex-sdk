@@ -28,7 +28,7 @@ import { PermissionsAPI } from "./api/permissions";
 import { installConsoleForwarding } from "./polyfills/consoleForwarding";
 import { drizzle, type SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 
-export class HaexHubClient {
+export class HaexVaultClient {
   private config: Required<Omit<HaexHubConfig, "manifest">> & {
     manifest?: HaexHubConfig["manifest"];
   };

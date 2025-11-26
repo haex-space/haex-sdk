@@ -1,4 +1,4 @@
-import type { HaexHubClient } from "../client";
+import type { HaexVaultClient } from "../client";
 import { HAEXTENSION_METHODS } from "../methods";
 
 export interface SaveFileOptions {
@@ -67,7 +67,7 @@ export interface ShowImageResult {
 }
 
 export class FilesystemAPI {
-  constructor(private client: HaexHubClient) {}
+  constructor(private client: HaexVaultClient) {}
 
   /**
    * Opens a save file dialog and saves the provided data to the selected location
