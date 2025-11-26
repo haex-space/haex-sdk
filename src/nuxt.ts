@@ -1,5 +1,5 @@
 /**
- * Nuxt Module for HaexHub SDK
+ * Nuxt Module for HaexVault SDK
  * Automatically injects polyfills into the built HTML files
  */
 import { addPlugin, createResolver, defineNuxtModule } from "@nuxt/kit";
@@ -28,8 +28,8 @@ export interface ModuleOptions {
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: "@haexhub/sdk",
-    configKey: "haexhub",
+    name: "@haex-space/vault-sdk",
+    configKey: "haexVault",
     compatibility: {
       nuxt: "^3.0.0 || ^4.0.0",
     },
@@ -43,7 +43,7 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options: ModuleOptions, nuxt: Nuxt) {
     const { resolve } = createResolver(import.meta.url);
 
-    // Add type declaration for $haexhub
+    // Add type declaration for $haexVault
     nuxt.hook('prepare:types', ({ references }) => {
       references.push({ path: resolve('./runtime/nuxt.types.d.ts') })
     })
@@ -63,7 +63,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Inject manifest into public runtime config
     nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {};
-    nuxt.options.runtimeConfig.public.haexhubManifest = manifest;
+    nuxt.options.runtimeConfig.public.haexVaultManifest = manifest;
 
     addPlugin({
       src: resolve("./runtime/nuxt.plugin.client.mjs"),
@@ -89,7 +89,7 @@ export default defineNuxtModule<ModuleOptions>({
         });
       });
       console.log(
-        "✓ [@haexhub/sdk] Dev mode: Priority polyfill injection configured"
+        "✓ [@haex-space/vault-sdk] Dev mode: Priority polyfill injection configured"
       );
     }
 
@@ -106,19 +106,19 @@ export default defineNuxtModule<ModuleOptions>({
       nuxt.options.vite.server.headers = getCorsHeaders();
 
       console.log(
-        "✓ [@haexhub/sdk] Dev mode: Set app.baseURL to / (absolute paths for dev server)"
+        "✓ [@haex-space/vault-sdk] Dev mode: Set app.baseURL to / (absolute paths for dev server)"
       );
-      console.log("✓ [@haexhub/sdk] Dev mode: Enabled CORS headers");
+      console.log("✓ [@haex-space/vault-sdk] Dev mode: Enabled CORS headers");
     } else {
       // PRODUCTION BUILD: Use relative paths
       nuxt.options.app.baseURL = "./";
       nuxt.options.app.buildAssetsDir = "_nuxt/"; // Remove leading slash
 
       console.log(
-        "✓ [@haexhub/sdk] Build mode: Set app.baseURL to relative path (./)"
+        "✓ [@haex-space/vault-sdk] Build mode: Set app.baseURL to relative path (./)"
       );
       console.log(
-        "✓ [@haexhub/sdk] Build mode: Set buildAssetsDir to relative path (_nuxt/)"
+        "✓ [@haex-space/vault-sdk] Build mode: Set buildAssetsDir to relative path (_nuxt/)"
       );
     }
 
@@ -132,10 +132,10 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.experimental.payloadExtraction = false;
 
     console.log(
-      "✓ [@haexhub/sdk] Disabled appManifest (not needed for extensions)"
+      "✓ [@haex-space/vault-sdk] Disabled appManifest (not needed for extensions)"
     );
     console.log(
-      "✓ [@haexhub/sdk] Disabled payloadExtraction (not needed for SPAs)"
+      "✓ [@haex-space/vault-sdk] Disabled payloadExtraction (not needed for SPAs)"
     );
 
     // Only inject polyfills if enabled and building for production
@@ -196,11 +196,11 @@ export default defineNuxtModule<ModuleOptions>({
 
           writeFileSync(filePath, html);
           console.log(
-            `✓ [@haexhub/sdk] Polyfill and relative paths applied to ${file}`
+            `✓ [@haex-space/vault-sdk] Polyfill and relative paths applied to ${file}`
           );
         }
       } catch (error: unknown) {
-        console.error("[@haexhub/sdk] Failed to inject polyfill:", error);
+        console.error("[@haex-space/vault-sdk] Failed to inject polyfill:", error);
       }
     });
   },

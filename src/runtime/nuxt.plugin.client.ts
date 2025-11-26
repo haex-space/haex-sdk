@@ -5,7 +5,7 @@ import type { ExtensionManifest, ApplicationContext } from "~/types";
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // Get manifest from runtime config (injected by Nuxt module)
-  const manifest = nuxtApp.$config.public.haexhubManifest as ExtensionManifest | null;
+  const manifest = nuxtApp.$config.public.haexVaultManifest as ExtensionManifest | null;
 
   // 1. Erstelle die Client-Instanz
   const client = new HaexVaultClient({
@@ -54,20 +54,20 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // This prevents race conditions where setupComplete() is called before the hook is registered.
 
   // 7. Stelle den Client und den reaktiven State bereit
-  const haexhubPlugin = {
+  const haexVaultPlugin = {
     client, // Der rohe Client (für client.orm, client.database, etc.)
     state, // Der reaktive State (für die UI)
   };
 
   return {
     provide: {
-      haexhub: haexhubPlugin,
+      haexVault: haexVaultPlugin,
     },
   };
 });
 
 // Export type for type declarations
-export type HaexHubNuxtPlugin = {
+export type HaexVaultNuxtPlugin = {
   client: HaexVaultClient;
   state: ShallowRef<{
     isReady: boolean;

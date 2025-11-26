@@ -1,14 +1,14 @@
-import type { HaexHubNuxtPlugin } from './nuxt.plugin.client'
+import type { HaexVaultNuxtPlugin } from './nuxt.plugin.client'
 
 declare module '#app' {
   interface NuxtApp {
-    $haexhub: HaexHubNuxtPlugin
+    $haexVault: HaexVaultNuxtPlugin
   }
 }
 
 declare module 'vue' {
   interface ComponentCustomProperties {
-    $haexhub: HaexHubNuxtPlugin
+    $haexVault: HaexVaultNuxtPlugin
   }
 }
 
