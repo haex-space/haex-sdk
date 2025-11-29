@@ -546,6 +546,12 @@ export class HaexVaultClient {
           fileName: params.fileName as string,
         });
 
+      case HAEXTENSION_METHODS.database.registerMigrations:
+        return invoke<T>("webview_extension_db_register_migrations", {
+          extensionVersion: params.extensionVersion as string,
+          migrations: params.migrations as Array<{ name: string; sql: string }>,
+        });
+
       default:
         throw new HaexHubError(
           ErrorCode.METHOD_NOT_FOUND,
