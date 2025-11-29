@@ -109,6 +109,18 @@ export interface DatabaseExecuteParams {
   statements: string[];
 }
 
+// Migration Types
+export interface MigrationResult {
+  appliedCount: number;
+  alreadyAppliedCount: number;
+  appliedMigrations: string[];
+}
+
+export interface Migration {
+  name: string;
+  sql: string;
+}
+
 export interface DatabaseTableInfo {
   name: string;
   columns: DatabaseColumnInfo[];

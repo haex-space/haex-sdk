@@ -13,6 +13,8 @@ import type {
   SearchResult,
   ContextChangedEvent,
   DatabaseQueryResult,
+  MigrationResult,
+  Migration,
 } from "./types";
 import {
   ErrorCode,
@@ -363,16 +365,23 @@ export class HaexVaultClient {
   }
 
   /**
-   * Registers extension migrations with HaexVault for CRDT synchronization
-   * HaexVault will validate and execute these migrations
+   * Registers and applies extension migrations with HaexVault
+   *
+   * HaexVault will:
+   * 1. Validate all SQL statements (ensure only extension's own tables are accessed)
+   * 2. Store migrations with applied_at = NULL
+   * 3. Query pending migrations sorted by name
+   * 4. Apply pending migrations and set up CRDT triggers
+   * 5. Mark successful migrations with applied_at timestamp
+   *
    * @param extensionVersion - The version of the extension
    * @param migrations - Array of migration objects with name and SQL content
-   * @returns Promise that resolves when migrations are registered
+   * @returns Promise with migration result (applied count, already applied count, applied migration names)
    */
   public async registerMigrationsAsync(
     extensionVersion: string,
-    migrations: Array<{ name: string; sql: string }>
-  ): Promise<void> {
+    migrations: Migration[]
+  ): Promise<MigrationResult> {
     return this.database.registerMigrationsAsync(extensionVersion, migrations);
   }
 

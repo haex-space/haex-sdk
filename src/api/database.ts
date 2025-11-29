@@ -1,5 +1,5 @@
 import type { HaexVaultClient } from "../client";
-import type { DatabaseQueryResult } from "../types";
+import type { DatabaseQueryResult, MigrationResult, Migration } from "../types";
 import { HAEXTENSION_METHODS } from "../methods";
 
 export class DatabaseAPI {
@@ -52,21 +52,30 @@ export class DatabaseAPI {
   }
 
   /**
-   * Registers extension migrations with HaexVault for CRDT synchronization
-   * HaexVault will validate and execute these migrations, ensuring only
-   * tables with the correct prefix are manipulated
+   * Registers and applies extension migrations with HaexVault
+   *
+   * HaexVault will:
+   * 1. Validate all SQL statements (ensure only extension's own tables are accessed)
+   * 2. Store migrations with applied_at = NULL
+   * 3. Query pending migrations sorted by name
+   * 4. Apply pending migrations and set up CRDT triggers
+   * 5. Mark successful migrations with applied_at timestamp
+   *
    * @param extensionVersion - The version of the extension
    * @param migrations - Array of migration objects with name and SQL content
-   * @returns Promise that resolves when migrations are registered
+   * @returns Promise with migration result (applied count, already applied count, applied migration names)
    */
   async registerMigrationsAsync(
     extensionVersion: string,
-    migrations: Array<{ name: string; sql: string }>
-  ): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.database.registerMigrations, {
-      extensionVersion,
-      migrations,
-    });
+    migrations: Migration[]
+  ): Promise<MigrationResult> {
+    return this.client.request<MigrationResult>(
+      HAEXTENSION_METHODS.database.registerMigrations,
+      {
+        extensionVersion,
+        migrations,
+      }
+    );
   }
 
   async insert(
