@@ -125,7 +125,7 @@ export class ExtensionSigner {
       throw new Error("Failed to read manifest.json");
     }
 
-    const manifest = manifestObject as any; // Cast to any for manipulation
+    const manifest = { ...manifestObject };
 
     // 1. Private Key importieren und Public Key ableiten
     const privateKeyBuffer = Buffer.from(privateKeyHex, "hex");
@@ -143,7 +143,7 @@ export class ExtensionSigner {
 
     // 2. Manifest für die Hash-Berechnung vorbereiten
     //    (Public Key rein, Signatur als leeren Platzhalter)
-    manifest.public_key = publicKeyHex;
+    manifest.publicKey = publicKeyHex;
     manifest.signature = ""; // signature leeren um Hash zu berechnen
 
     const canonicalManifestForHashing =

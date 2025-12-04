@@ -28,7 +28,7 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
 
   try {
     const manifestContent = readFileSync(resolvedManifestPath, "utf-8");
-    const parsed = JSON.parse(manifestContent);
+    const parsed: ExtensionManifest = JSON.parse(manifestContent);
 
     // Read version from package.json if not provided in manifest
     let version = parsed.version;
@@ -49,7 +49,7 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
       author: parsed.author ?? null,
       entry: parsed.entry ?? null,
       icon: parsed.icon ?? null,
-      public_key: parsed.public_key,
+      publicKey: parsed.publicKey,
       signature: parsed.signature || "",
       permissions: parsed.permissions || {
         database: [],
@@ -59,8 +59,8 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
       },
       homepage: parsed.homepage ?? null,
       description: parsed.description ?? null,
-      single_instance: parsed.single_instance ?? null,
-      display_mode: parsed.display_mode ?? null,
+      singleInstance: parsed.singleInstance ?? null,
+      displayMode: parsed.displayMode ?? null,
     };
 
     console.log(`✓ [@haexhub/sdk] Loaded ${resolvedManifestPath}`);
