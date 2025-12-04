@@ -23,6 +23,7 @@ export type {
   DatabaseTableInfo,
   DatabaseColumnInfo,
   ExtensionInfo,
+  ExtensionManifest,
   ApplicationContext,
   SearchQuery,
   SearchResult,
