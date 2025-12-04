@@ -28,36 +28,48 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
 
   try {
     const manifestContent = readFileSync(resolvedManifestPath, "utf-8");
-    const parsed: ExtensionManifest = JSON.parse(manifestContent);
+    const parsed: Partial<ExtensionManifest> = JSON.parse(manifestContent);
 
-    // Read version from package.json if not provided in manifest
-    let version = parsed.version;
+    // Read fallback values from package.json
+    let packageJson: { name?: string; version?: string; author?: string; homepage?: string } = {};
+    try {
+      const packageJsonPath = resolvePath(rootDir, "package.json");
+      packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+    } catch (pkgError) {
+      console.warn(`[@haexhub/sdk] Warning: Could not read package.json`);
+    }
+
+    // Use manifest values with fallback to package.json
+    const name = parsed.name ?? packageJson.name;
+    const version = parsed.version ?? packageJson.version;
+    const author = parsed.author ?? packageJson.author ?? null;
+    const homepage = parsed.homepage ?? packageJson.homepage ?? null;
+
+    if (!name) {
+      console.warn(`[@haexhub/sdk] Warning: No name found in manifest or package.json`);
+      return null;
+    }
+
     if (!version) {
-      try {
-        const packageJsonPath = resolvePath(rootDir, "package.json");
-        const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
-        version = packageJson.version;
-        console.log(`✓ [@haexhub/sdk] Using version from package.json: ${version}`);
-      } catch (pkgError) {
-        console.warn(`[@haexhub/sdk] Warning: Could not read version from package.json`);
-      }
+      console.warn(`[@haexhub/sdk] Warning: No version found in manifest or package.json`);
+      return null;
     }
 
     const manifest: ExtensionManifest = {
-      name: parsed.name,
-      version: version,
-      author: parsed.author ?? null,
+      name,
+      version,
+      author,
       entry: parsed.entry ?? null,
       icon: parsed.icon ?? null,
-      publicKey: parsed.publicKey,
-      signature: parsed.signature || "",
-      permissions: parsed.permissions || {
+      publicKey: parsed.publicKey ?? "",
+      signature: parsed.signature ?? "",
+      permissions: parsed.permissions ?? {
         database: [],
         filesystem: [],
         http: [],
         shell: [],
       },
-      homepage: parsed.homepage ?? null,
+      homepage,
       description: parsed.description ?? null,
       singleInstance: parsed.singleInstance ?? null,
       displayMode: parsed.displayMode ?? null,

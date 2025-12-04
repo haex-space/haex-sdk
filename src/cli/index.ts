@@ -40,12 +40,6 @@ program
         packageJson = JSON.parse(content);
       }
 
-      // Determine extension name
-      const extensionName =
-        options.name ||
-        packageJson.name ||
-        path.basename(cwd).replace(/[^a-z0-9-]/gi, "-").toLowerCase();
-
       console.log("🚀 Initializing HaexHub Extension...\n");
 
       // 1. Create haextension directory
@@ -58,18 +52,9 @@ program
       await fs.writeFile(path.join(extDir, "private.key"), privateKey);
       console.log("✓ Generated keypair");
 
-      // 3. Create manifest.json
-      const manifest = {
-        name: extensionName,
-        version: packageJson.version || "0.1.0",
-        author: options.author || packageJson.author || "Your Name",
-        description:
-          options.description ||
-          packageJson.description ||
-          "A HaexHub extension",
-        entry: "index.html",
-        icon: "icon.png",
-        public_key: publicKey,
+      // 3. Create manifest.json (only required fields, optional fields come from package.json)
+      const manifest: Record<string, unknown> = {
+        publicKey: publicKey,
         signature: "",
         permissions: {
           database: [],
@@ -77,10 +62,16 @@ program
           http: [],
           shell: [],
         },
-        homepage: packageJson.homepage || null,
-        single_instance: false,
-        display_mode: "auto",
+        singleInstance: false,
+        displayMode: "auto",
       };
+
+      // Only add description if provided via CLI or not in package.json
+      if (options.description) {
+        manifest.description = options.description;
+      } else if (!packageJson.description) {
+        manifest.description = "A HaexHub extension";
+      }
 
       await fs.writeFile(
         path.join(extDir, "manifest.json"),
